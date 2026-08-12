@@ -30,8 +30,11 @@ app) so the fitted model can be reused outside the notebook.
 
 ## Dataset
 
-California Housing Prices dataset, 20,640 rows, one row per census block group, with
-the following columns:
+**Source:** [California Housing Prices](https://www.kaggle.com/datasets/camnugent/california-housing-prices)
+on Kaggle. Derived from the 1990 U.S. Census, with each row representing a California
+census block group. See the Kaggle listing for the dataset's license terms.
+
+20,640 rows, one row per census block group, with the following columns:
 
 | Column | Description |
 |---|---|
