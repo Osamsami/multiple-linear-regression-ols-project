@@ -1,12 +1,12 @@
 """Streamlit demo for interactive median house value predictions.
 
-Loads the fitted hand-rolled OLS model saved by ``train.py``
-(``models/ols_model.pkl``), presents a form for the housing features used
-during training, and shows the predicted median house value plus the
-fitted model coefficients.
+Loads the fitted hand-rolled OLS model from ``models/ols_model.pkl`` if
+present (from a prior ``python train.py`` run); otherwise trains it inline
+on first load. The fit is sub-second on this dataset, so this keeps the app
+deployable (e.g. on Streamlit Community Cloud) without needing a committed
+binary artifact.
 
 Usage:
-    python train.py      # once, to produce models/ols_model.pkl
     streamlit run app.py
 """
 from __future__ import annotations
@@ -17,6 +17,8 @@ import joblib
 import numpy as np
 import pandas as pd
 import streamlit as st
+
+from train import train_model
 
 MODEL_PATH = os.path.join("models", "ols_model.pkl")
 
@@ -45,10 +47,17 @@ NUMERIC_FIELD_CONFIG = {
 
 
 @st.cache_resource
-def load_model(path: str = MODEL_PATH):
-    if not os.path.exists(path):
-        return None
-    return joblib.load(path)
+def load_model(path: str = MODEL_PATH) -> dict:
+    if os.path.exists(path):
+        return joblib.load(path)
+
+    model = train_model()
+    try:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        joblib.dump(model, path)
+    except OSError:
+        pass  # read-only deployment filesystem — fine, we keep the in-memory model
+    return model
 
 
 def build_feature_row(inputs: dict, model: dict) -> pd.DataFrame:
@@ -80,12 +89,6 @@ def main() -> None:
     )
 
     model = load_model()
-    if model is None:
-        st.warning(
-            f"No fitted model found at `{MODEL_PATH}`. Run `python train.py` first "
-            "to train and save the model, then reload this page."
-        )
-        return
 
     with st.form("prediction_form"):
         st.subheader("Block group features")
