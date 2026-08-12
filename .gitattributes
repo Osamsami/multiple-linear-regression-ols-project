@@ -1,0 +1,3 @@
+*.csv -diff -text linguist-generated=true
+*.npy -diff -text linguist-generated=true
+outputs/plots/*.png -diff linguist-generated=true
