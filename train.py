@@ -59,8 +59,12 @@ def fit_ols(X_b: np.ndarray, y: np.ndarray) -> np.ndarray:
     return np.linalg.inv(X_b.T.dot(X_b)).dot(X_b.T).dot(y)
 
 
-def main() -> None:
-    df = load_data()
+def train_model(data_path: str = DATA_PATH) -> dict:
+    """Run the full fit and return the artifact dict app.py needs — without
+    touching disk. Lets app.py train on demand (the fit is sub-second on this
+    dataset) when no cached models/ols_model.pkl is present, e.g. on a fresh
+    Streamlit Cloud deployment."""
+    df = load_data(data_path)
     X, y = build_features(df)
     feature_names = X.columns.tolist()
     ocean_categories = sorted(df[CATEGORICAL_COL].unique().tolist())
@@ -81,34 +85,33 @@ def main() -> None:
     y_train_pred = X_train_b.dot(beta)
     y_test_pred = X_test_b.dot(beta)
 
-    train_rmse = float(np.sqrt(mean_squared_error(y_train, y_train_pred)))
-    train_r2 = float(r2_score(y_train, y_train_pred))
-    test_rmse = float(np.sqrt(mean_squared_error(y_test, y_test_pred)))
-    test_r2 = float(r2_score(y_test, y_test_pred))
+    return {
+        "beta": beta,
+        "feature_names": feature_names,
+        "scaler_mean": scaler.mean_,
+        "scaler_scale": scaler.scale_,
+        "categorical_col": CATEGORICAL_COL,
+        "ocean_categories": ocean_categories,
+        "metrics": {
+            "train_rmse": float(np.sqrt(mean_squared_error(y_train, y_train_pred))),
+            "train_r2": float(r2_score(y_train, y_train_pred)),
+            "test_rmse": float(np.sqrt(mean_squared_error(y_test, y_test_pred))),
+            "test_r2": float(r2_score(y_test, y_test_pred)),
+        },
+    }
 
-    print(f"Train RMSE: {train_rmse:,.2f}")
-    print(f"Train R2:   {train_r2:.4f}")
-    print(f"Test RMSE:  {test_rmse:,.2f}")
-    print(f"Test R2:    {test_r2:.4f}")
+
+def main() -> None:
+    model = train_model()
+    metrics = model["metrics"]
+
+    print(f"Train RMSE: {metrics['train_rmse']:,.2f}")
+    print(f"Train R2:   {metrics['train_r2']:.4f}")
+    print(f"Test RMSE:  {metrics['test_rmse']:,.2f}")
+    print(f"Test R2:    {metrics['test_r2']:.4f}")
 
     os.makedirs(MODEL_DIR, exist_ok=True)
-    joblib.dump(
-        {
-            "beta": beta,
-            "feature_names": feature_names,
-            "scaler_mean": scaler.mean_,
-            "scaler_scale": scaler.scale_,
-            "categorical_col": CATEGORICAL_COL,
-            "ocean_categories": ocean_categories,
-            "metrics": {
-                "train_rmse": train_rmse,
-                "train_r2": train_r2,
-                "test_rmse": test_rmse,
-                "test_r2": test_r2,
-            },
-        },
-        MODEL_PATH,
-    )
+    joblib.dump(model, MODEL_PATH)
     print(f"Saved fitted model to {MODEL_PATH}")
 
 
