@@ -121,7 +121,8 @@ outputs/
 models/                     # fitted model persisted by train.py (gitignored)
 train.py                    # standalone script: fit + serialize the OLS model
 app.py                      # Streamlit demo for interactive predictions
-requirements.txt
+requirements.txt            # deploy deps: what app.py/train.py need
+requirements-notebook.txt   # extra deps for running the notebook locally
 Dockerfile
 ```
 
@@ -141,6 +142,8 @@ git clone https://github.com/Osamsami/multiple-linear-regression-ols-project.git
 cd multiple-linear-regression-ols-project
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
+# Also running the notebook? Install the notebook extras too:
+pip install -r requirements-notebook.txt
 ```
 
 <br>
