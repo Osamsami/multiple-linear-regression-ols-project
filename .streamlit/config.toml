@@ -1,0 +1,17 @@
+[theme]
+base = "light"
+primaryColor = "#3B82F6"
+
+[theme.light]
+primaryColor = "#3B82F6"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#EFF6FF"
+textColor = "#0F172A"
+linkColor = "#3B82F6"
+
+[theme.dark]
+primaryColor = "#3B82F6"
+backgroundColor = "#0E1117"
+secondaryBackgroundColor = "#16233A"
+textColor = "#F1F5F9"
+linkColor = "#3B82F6"
