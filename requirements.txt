@@ -3,6 +3,8 @@
 # installs, and bundling the heavier notebook/dev tooling here risks build
 # timeouts and unrelated resolver conflicts unrelated to the app itself.
 # For notebook work, also install requirements-notebook.txt.
+# streamlit's numpy upper bound moved from <2 to <3 as of streamlit 1.36.0 —
+# keep numpy and streamlit bumped together.
 numpy==2.1.3
 pandas==2.2.3
 scikit-learn==1.5.2
